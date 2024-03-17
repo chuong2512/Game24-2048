@@ -2,6 +2,7 @@ using UnityEngine.Purchasing.Security;
 using System;
 using System.Collections;
 using Jackal;
+using Samsung;
 using UnityEngine;
 using UnityEngine.Purchasing;
 
@@ -24,6 +25,8 @@ public class IAPManager : PersistentSingleton<IAPManager>, IStoreListener
     private void Start()
     {
         InitIAP();
+        
+        SamsungIAP.Instance.GetProductsDetails("add10coins, add50coins, add100coins, add200coins", null);
     }
 
     private void InitIAP()
@@ -52,6 +55,11 @@ public class IAPManager : PersistentSingleton<IAPManager>, IStoreListener
 
     public void BuyProductID(string productId)
     {
+        SamsungIAP.Instance.StartPayment(productId, String.Empty, info =>
+        {
+            OnPurchaseComplete(productId);
+        });
+        
         _isBuyFromShop = true;
 
 #if UNITY_EDITOR
@@ -133,6 +141,11 @@ public class IAPManager : PersistentSingleton<IAPManager>, IStoreListener
     public void OnInitializeFailed(InitializationFailureReason error)
     {
         Debug.Log("OnInitializeFailed InitializationFailureReason:" + error);
+    }
+
+    public void OnInitializeFailed(InitializationFailureReason error, string message)
+    {
+        
     }
 
     public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs args)
